@@ -1,9 +1,14 @@
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-PROJECT_ROOT = BASE_DIR.parent
 
-EXPORTS_DIR = PROJECT_ROOT / "exports"
+EXPORTS_DIR = (
+    BASE_DIR / "exports"
+)
+
+# =========================================
+# TensorFlow
+# =========================================
 
 TF_MODEL_PATH = (
     EXPORTS_DIR
@@ -11,17 +16,29 @@ TF_MODEL_PATH = (
     / "bpfense_saved_model"
 )
 
+# =========================================
+# Sklearn
+# =========================================
+
 SKLEARN_MODEL_PATH = (
     EXPORTS_DIR
     / "sklearn"
     / "model.pkl"
 )
 
+# =========================================
+# Autoencoder
+# =========================================
+
 AUTOENCODER_MODEL_PATH = (
     EXPORTS_DIR
     / "autoencoder"
     / "behavioral_autoencoder"
 )
+
+# =========================================
+# Sequence
+# =========================================
 
 SEQUENCE_MODEL_PATH = (
     EXPORTS_DIR

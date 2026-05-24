@@ -5,19 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bpfense-ai"
 version = "0.1.0"
-description = "Behavioral security ML runtime and inference framework"
-authors = [
-  {name = "Anil"}
-]
-readme = "README.md"
+description = "Behavioral AI anomaly detection engine"
 requires-python = ">=3.10"
 
 dependencies = [
-  "numpy",
-  "tensorflow",
-  "scikit-learn",
-  "onnxruntime",
-  "joblib"
+    "tensorflow",
+    "numpy",
+    "scikit-learn",
+    "onnxruntime",
+    "joblib",
 ]
 
 [tool.setuptools.packages.find]

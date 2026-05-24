@@ -8,87 +8,17 @@ from bpfense_ai.inference.common.feature_schema import (
     FEATURE_DIMENSION,
 )
 
-# =========================================================
-# CANONICAL NORMALIZATION RANGES
-# =========================================================
-#
-# IMPORTANT:
-# These ranges MUST remain aligned with:
-#
-# - telemetry distributions
-# - training datasets
-# - runtime inference
-# - exported TensorFlow models
-# - future ONNX runtimes
-#
-# Updating ranges after training requires
-# model retraining.
-# =========================================================
+from bpfense_ai.preprocessing.validators import (
+    validate_feature_dict,
+)
 
-NORMALIZATION_RANGES = {
+from bpfense_ai.preprocessing.normalization import (
+    NORMALIZATION_RANGES,
+)
 
-    # =====================================================
-    # EXECUTION FEATURES
-    # =====================================================
-
-    "exec_count": 100.0,
-
-    "shell_exec_count": 20.0,
-
-    "sensitive_binary_execs": 20.0,
-
-    # =====================================================
-    # NETWORK FEATURES
-    # =====================================================
-
-    "net_count": 50.0,
-
-    "dns_requests": 100.0,
-
-    "external_connections": 50.0,
-
-    "unique_ips": 25.0,
-
-    "unique_ports": 50.0,
-
-    # =====================================================
-    # CORRELATION FEATURES
-    # =====================================================
-
-    "exec_net_ratio": 20.0,
-
-    "activity_ratio": 20.0,
-
-    # =====================================================
-    # BEHAVIORAL FEATURES
-    # =====================================================
-
-    "burst": 50.0,
-
-    "behavior_entropy": 10.0,
-
-    "event_density": 10.0,
-
-    # =====================================================
-    # SEQUENCE FEATURES
-    # =====================================================
-
-    "sequence_score": 100.0,
-
-    # =====================================================
-    # STATISTICAL FEATURES
-    # =====================================================
-
-    "avg_exec_drift": 100.0,
-
-    "avg_net_drift": 100.0,
-
-    # =====================================================
-    # TEMPORAL FEATURES
-    # =====================================================
-
-    "time_delta_variance": 100.0,
-}
+from bpfense_ai.preprocessing.exceptions import (
+    FeatureNormalizationError,
+)
 
 # =========================================================
 # FEATURE PREPROCESSOR
@@ -96,19 +26,14 @@ NORMALIZATION_RANGES = {
 
 class FeaturePreprocessor:
     """
-    Canonical behavioral feature preprocessor.
+    Production-grade behavioral feature preprocessor.
 
     Responsibilities:
-    - enforce immutable feature ordering
-    - normalize behavioral telemetry
-    - construct inference/training vectors
-    - guarantee tensor consistency
-
-    Used by:
-    - TensorFlow training
-    - sklearn training
-    - inference runtimes
-    - future ONNX runtime
+    - strict feature validation
+    - deterministic normalization
+    - immutable feature ordering
+    - tensor dimension safety
+    - runtime integrity guarantees
     """
 
     # =====================================================
@@ -117,40 +42,56 @@ class FeaturePreprocessor:
 
     def __init__(self):
 
+        self.columns = FEATURE_COLUMNS
+
+        self.dimension = FEATURE_DIMENSION
+
         self.ranges = NORMALIZATION_RANGES
 
-        self.feature_columns = FEATURE_COLUMNS
-
-        self.feature_dimension = FEATURE_DIMENSION
-
     # =====================================================
-    # NORMALIZE SINGLE FEATURE
+    # NORMALIZE FEATURE
     # =====================================================
 
-    def normalize_feature(
-
+    def normalize(
         self,
-
         feature_name: str,
-
-        value: Any
-
+        value: float,
     ) -> float:
 
-        max_value = self.ranges.get(
+        maximum = self.ranges.get(
             feature_name,
             1.0
         )
 
-        try:
+        # =================================================
+        # NORMALIZATION SAFETY
+        # =================================================
 
-            normalized = (
-                float(value) / max_value
+        if maximum <= 0:
+
+            raise FeatureNormalizationError(
+
+                f"invalid normalization range "
+
+                f"for feature '{feature_name}'"
             )
 
-        except Exception:
+        try:
 
-            normalized = 0.0
+            normalized = value / maximum
+
+        except Exception as e:
+
+            raise FeatureNormalizationError(
+
+                f"failed to normalize "
+
+                f"feature '{feature_name}': {e}"
+            )
+
+        # =================================================
+        # CLAMP TO SAFE RANGE
+        # =================================================
 
         normalized = max(
             0.0,
@@ -158,53 +99,73 @@ class FeaturePreprocessor:
         )
 
         return round(
-            normalized,
+            float(normalized),
             6
         )
 
     # =====================================================
-    # TRANSFORM FEATURE DICT
+    # TRANSFORM FEATURES
     # =====================================================
 
     def transform(
         self,
-        features: Dict[str, Any]
+        features: Dict[str, Any],
     ) -> np.ndarray:
+
+        # =================================================
+        # STRICT VALIDATION
+        # =================================================
+
+        validate_feature_dict(
+            features
+        )
 
         vector = []
 
-        for feature_name in self.feature_columns:
+        # =================================================
+        # IMMUTABLE FEATURE ORDER
+        # =================================================
 
-            value = features.get(
+        for feature_name in self.columns:
+
+            raw_value = features.get(
                 feature_name,
                 0.0
             )
 
-            normalized = self.normalize_feature(
+            normalized = self.normalize(
 
                 feature_name,
 
-                value
+                float(raw_value)
             )
 
-            vector.append(normalized)
+            vector.append(
+                normalized
+            )
+
+        # =================================================
+        # BUILD NUMPY VECTOR
+        # =================================================
 
         vector = np.array(
+
             vector,
+
             dtype=np.float32
         )
 
         # =================================================
-        # DIMENSION SAFETY CHECK
+        # DIMENSION SAFETY
         # =================================================
 
-        if len(vector) != self.feature_dimension:
+        if len(vector) != self.dimension:
 
             raise ValueError(
 
-                "Feature dimension mismatch: "
+                "feature dimension mismatch: "
 
-                f"expected={self.feature_dimension} "
+                f"expected={self.dimension} "
 
                 f"got={len(vector)}"
             )
@@ -218,16 +179,16 @@ class FeaturePreprocessor:
     def feature_names(self):
 
         return list(
-            self.feature_columns
+            self.columns
         )
 
     # =====================================================
-    # FEATURE COUNT
+    # FEATURE DIMENSION
     # =====================================================
 
-    def dimension(self):
+    def feature_dimension(self):
 
-        return self.feature_dimension
+        return self.dimension
 
 # =========================================================
 # GLOBAL PREPROCESSOR INSTANCE
@@ -236,10 +197,12 @@ class FeaturePreprocessor:
 _preprocessor = FeaturePreprocessor()
 
 # =========================================================
-# LEGACY / RUNTIME WRAPPER
+# RUNTIME WRAPPER
 # =========================================================
 
-def preprocess_features(features):
+def preprocess_features(
+    features: Dict[str, Any]
+):
 
     return _preprocessor.transform(
         features

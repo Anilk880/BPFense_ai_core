@@ -1,35 +1,103 @@
 from typing import List
 
-from bpfense_ai.inference.common.types import PredictionResult
+from bpfense_ai.inference.common.types import (
+    PredictionResult,
+)
 
+from bpfense_ai.inference.aggregation import (
+    weighted_score,
+    aggregate_label,
+    aggregate_severity,
+)
+
+from bpfense_ai.inference.confidence import (
+    confidence_score,
+)
+
+# =========================================================
+# ENSEMBLE CLASSIFIER
+# =========================================================
 
 class BehavioralClassifier:
 
-    def __init__(self, backends: List):
+    def __init__(
+        self,
+        backends: List
+    ):
+
         self.backends = backends
+
+    # =====================================================
+    # LOAD BACKENDS
+    # =====================================================
 
     def load(self):
 
         for backend in self.backends:
+
             backend.load()
 
-    def predict(self, features):
+    # =====================================================
+    # PREDICT
+    # =====================================================
+
+    def predict(
+        self,
+        features
+    ):
 
         results = []
 
         for backend in self.backends:
-            results.append(backend.predict(features))
 
-        return self._aggregate(results)
+            result = backend.predict(
+                features
+            )
 
-    def _aggregate(self, results):
+            results.append(
+                result
+            )
 
-        max_result = max(results, key=lambda r: r.score)
+        return self._aggregate(
+            results
+        )
+
+    # =====================================================
+    # AGGREGATE
+    # =====================================================
+
+    def _aggregate(
+        self,
+        results: List[PredictionResult]
+    ):
+
+        ensemble_score = weighted_score(
+            results
+        )
+
+        label = aggregate_label(
+            ensemble_score
+        )
+
+        severity = aggregate_severity(
+            ensemble_score
+        )
+
+        confidence = confidence_score(
+            results
+        )
 
         return {
-            "label": max_result.label,
-            "severity": max_result.severity,
-            "score": max_result.score,
-            "backend": max_result.backend,
-            "results": results
+
+            "label": label,
+
+            "severity": severity,
+
+            "score": ensemble_score,
+
+            "confidence": confidence,
+
+            "backend": "ensemble",
+
+            "results": results,
         }

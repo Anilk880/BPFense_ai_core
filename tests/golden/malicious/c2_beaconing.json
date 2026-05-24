@@ -1,0 +1,19 @@
+{
+  "exec_count": 20,
+  "shell_exec_count": 4,
+  "sensitive_binary_execs": 2,
+  "net_count": 150,
+  "dns_requests": 60,
+  "external_connections": 90,
+  "unique_ips": 25,
+  "unique_ports": 100,
+  "exec_net_ratio": 4.0,
+  "activity_ratio": 4.5,
+  "burst": 5.5,
+  "behavior_entropy": 7.0,
+  "event_density": 6.5,
+  "sequence_score": 8.0,
+  "avg_exec_drift": 2.0,
+  "avg_net_drift": 7.0,
+  "time_delta_variance": 5.5
+}
