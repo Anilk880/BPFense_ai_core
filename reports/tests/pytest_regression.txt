@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/anil/Anil/Projects/bpfense-ai
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collecting ... collected 11 items
+
+tests/regression/test_backend_consistency.py::test_benign_backend_consistency PASSED [  9%]
+tests/regression/test_backend_consistency.py::test_malicious_backend_consistency PASSED [ 18%]
+tests/regression/test_backend_consistency.py::test_backend_determinism PASSED [ 27%]
+tests/regression/test_ensemble_calibration.py::test_ensemble_output PASSED [ 36%]
+tests/regression/test_ensemble_calibration.py::test_ensemble_determinism PASSED [ 45%]
+tests/regression/test_inference_replay.py::test_benign_inference PASSED  [ 54%]
+tests/regression/test_inference_replay.py::test_malicious_inference PASSED [ 63%]
+tests/regression/test_inference_replay.py::test_deterministic_inference PASSED [ 72%]
+tests/regression/test_replay_preprocessing.py::test_benign_replay PASSED [ 81%]
+tests/regression/test_replay_preprocessing.py::test_malicious_replay PASSED [ 90%]
+tests/regression/test_replay_preprocessing.py::test_malformed_replay PASSED [100%]
+
+============================== 11 passed in 2.71s ==============================

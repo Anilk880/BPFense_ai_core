@@ -1,0 +1,138 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/anil/Anil/Projects/bpfense-ai
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collecting ... collected 17 items
+
+tests/golden/test_backend_inspection.py::test_benign_backend_scores 
+TensorFlow:
+PredictionResult(backend='tensorflow', label='malicious', score=0.8637988567352295, severity='high', metadata={}, raw_output={'output_0': <tf.Tensor: shape=(1, 1), dtype=float32, numpy=array([[0.86379886]], dtype=float32)>})
+
+Sklearn:
+PredictionResult(backend='sklearn', label='normal', score=0.0, severity='low', metadata={}, raw_output=np.int64(1))
+PASSED
+tests/golden/test_backend_inspection.py::test_malicious_backend_scores 
+TensorFlow:
+PredictionResult(backend='tensorflow', label='malicious', score=1.0, severity='critical', metadata={}, raw_output={'output_0': <tf.Tensor: shape=(1, 1), dtype=float32, numpy=array([[1.]], dtype=float32)>})
+
+Sklearn:
+PredictionResult(backend='sklearn', label='malicious', score=1.0, severity='high', metadata={}, raw_output=np.int64(-1))
+PASSED
+tests/golden/test_behavior_detection.py::test_benign_behavior 
+===================================
+tests/golden/benign/normal_terminal_usage.json
+===================================
+PredictionResponse(label='normal', severity='low', score=0.34552, confidence=0.21595, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_reverse_shell_detection 
+===================================
+tests/golden/malicious/reverse_shell.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_dns_beaconing_detection 
+===================================
+tests/golden/malicious/dns_beaconing.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_port_scan_detection 
+===================================
+tests/golden/malicious/port_scan.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_data_exfiltration_detection 
+===================================
+tests/golden/malicious/data_exfiltration.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_crypto_miner_detection 
+===================================
+tests/golden/malicious/crypto_miner.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_lateral_movement_detection 
+===================================
+tests/golden/malicious/lateral_movement.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_privilege_escalation_detection 
+===================================
+tests/golden/malicious/privilege_escalation.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_detection.py::test_c2_beaconing_detection 
+===================================
+tests/golden/malicious/c2_beaconing.json
+===================================
+PredictionResponse(label='malicious', severity='critical', score=1.0, confidence=1.0, backend='ensemble')
+PASSED
+tests/golden/test_behavior_scores.py::test_normal_terminal_usage 
+===================================
+Behavior : normal_terminal_usage
+===================================
+Label      : normal
+Severity   : low
+Score      : 0.345520
+Confidence : 0.215950
+Backend    : ensemble
+PASSED
+tests/golden/test_behavior_scores.py::test_reverse_shell_behavior 
+===================================
+Behavior : tests/golden/malicious/reverse_shell.json
+===================================
+Label      : malicious
+Severity   : critical
+Score      : 1.000000
+Confidence : 1.000000
+Backend    : ensemble
+PASSED
+tests/golden/test_behavior_scores.py::test_dns_beaconing_behavior 
+===================================
+Behavior : tests/golden/malicious/dns_beaconing.json
+===================================
+Label      : malicious
+Severity   : critical
+Score      : 1.000000
+Confidence : 1.000000
+Backend    : ensemble
+PASSED
+tests/golden/test_behavior_scores.py::test_port_scan_behavior 
+===================================
+Behavior : tests/golden/malicious/port_scan.json
+===================================
+Label      : malicious
+Severity   : critical
+Score      : 1.000000
+Confidence : 1.000000
+Backend    : ensemble
+PASSED
+tests/golden/test_behavior_scores.py::test_data_exfiltration_behavior 
+===================================
+Behavior : tests/golden/malicious/data_exfiltration.json
+===================================
+Label      : malicious
+Severity   : critical
+Score      : 1.000000
+Confidence : 1.000000
+Backend    : ensemble
+PASSED
+tests/golden/test_behavior_scores.py::test_crypto_miner_behavior 
+===================================
+Behavior : tests/golden/malicious/crypto_miner.json
+===================================
+Label      : malicious
+Severity   : critical
+Score      : 1.000000
+Confidence : 1.000000
+Backend    : ensemble
+PASSED
+
+============================== 17 passed in 3.14s ==============================
